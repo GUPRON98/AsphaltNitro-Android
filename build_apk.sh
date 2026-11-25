@@ -72,11 +72,16 @@ apksigner sign \
 cp -f /sdcard/ai/AsphaltNitro.apk "$PROJECT_DIR/AsphaltNitro.apk"
 ls -lh /sdcard/ai/AsphaltNitro.apk
 
-# Auto open installer
-echo "Opening installer..."
-termux-open /sdcard/ai/AsphaltNitro.apk 2>/dev/null || \
-  am start -a android.intent.action.VIEW \
-    -t application/vnd.android.package-archive \
-    -d "content://com.termux.files/home/AsphaltNitro-Android/AsphaltNitro.apk" \
-    --grant-read-uri-permission 2>/dev/null || true
-echo "✅ Build selesai! Tap Install di layar HP."
+# Auto install via ADB if connected, else open installer
+if adb get-state 2>/dev/null | grep -q "device"; then
+  echo "Installing via ADB..."
+  adb install -r /sdcard/ai/AsphaltNitro.apk
+else
+  echo "Opening installer..."
+  termux-open /sdcard/ai/AsphaltNitro.apk 2>/dev/null || \
+    am start -a android.intent.action.VIEW \
+      -t application/vnd.android.package-archive \
+      -d "content://com.termux.files/home/AsphaltNitro-Android/AsphaltNitro.apk" \
+      --grant-read-uri-permission 2>/dev/null || true
+fi
+echo "✅ Build selesai!"
